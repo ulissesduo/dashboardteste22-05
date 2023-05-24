@@ -223,7 +223,6 @@ get(child(dbRef, `payments`)).then((snapshot) => {
 
 // ========================================
 
-
 function calculateTotalPaidAmount(teacherId, studentIds) {
   const paymentRef = ref(db, 'payments/');
   let totalPaidAmount = 0;
@@ -233,45 +232,30 @@ function calculateTotalPaidAmount(teacherId, studentIds) {
     if (data) {
       const paidStudents = [];
       const notPaidStudents = [];
-      // Iterate over the payment nodes
+
       for (const paymentId in data) {
         const payment = data[paymentId];
         const paymentDate = payment.date
         const studentId = payment.studentId;
         const status = payment.status;
         const amount = payment.amount;
-        const teacherId = payment.teacherId
+        const teacherIds = payment.teacherId
         
-        
-        // // Check if the payment belongs to the teacher's students
-        // if (status === 'paid' && studentIds.includes(studentId)) {
-        //   // Add the student to the paidStudents array
-          
-        //   paidStudents.push({ studentId, amount, status });
-        //   // Accumulate the amount to calculate the total paid amount
-        //   totalPaidAmount += amount;
-        // }
-
-        if (status === false && studentIds.includes(studentId)) {
-          // Add the student to the paidStudents array
-          notPaidStudents.push({ studentId, amount, status, paymentDate });
-          // Accumulate the amount to calculate the total paid amount
-          // totalPaidAmount += amount;
-        }
-        else if(status !== false && studentIds.includes(studentId)){
-          console.log('paymentId: ' + paymentId)
-          console.log( payment, studentId, status, amount, paymentDate, teacherId)
-        
-          paidStudents.push({studentId, amount, status, paymentDate })
-          totalPaidAmount += amount;
+        if (teacherId === teacherIds) {
+          if (status === false && studentIds.includes(studentId)) {
+            notPaidStudents.push({ studentId, amount, status, paymentDate, teacherId });
+          } else if (status !== false && studentIds.includes(studentId)) {
+            paidStudents.push({ studentId, amount, status, paymentDate, teacherId });
+            totalPaidAmount += amount;
+          }
         }
       }
-      // Display the paid students and total paid amount
+
       console.log('Paid Students:', paidStudents);
       console.log('Total Paid Amount:', totalPaidAmount);
       console.log('notPaidStudents: ' , notPaidStudents)
       console.log('teacherId: '+ teacherId)
-      // You can further process the paid students and total paid amount as needed, such as displaying it on a web page.
+
     } else {
       console.log("No payment found for the specified teacherId.");
     }
